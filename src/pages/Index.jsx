@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { Cat, ChevronDown, Paw, Heart } from "lucide-react";
+import { Cat, ChevronDown, Paw, Heart, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Index = () => {
   const [hoveredBreed, setHoveredBreed] = useState(null);
   const [likeCount, setLikeCount] = useState(0);
+  const [selectedBreed, setSelectedBreed] = useState(null);
 
   const catCharacteristics = [
     { icon: <Paw className="h-8 w-8" />, text: "Excellent hunters with sharp claws and teeth" },
@@ -18,11 +20,11 @@ const Index = () => {
   ];
 
   const catBreeds = [
-    { name: "Siamese", image: "https://upload.wikimedia.org/wikipedia/commons/2/25/Siam_lilacpoint.jpg" },
-    { name: "Persian", image: "https://upload.wikimedia.org/wikipedia/commons/1/15/White_Persian_Cat.jpg" },
-    { name: "Maine Coon", image: "https://upload.wikimedia.org/wikipedia/commons/5/5f/Maine_Coon_cat_by_Tomitheos.JPG" },
-    { name: "British Shorthair", image: "https://upload.wikimedia.org/wikipedia/commons/9/9d/Britishblue.jpg" },
-    { name: "Sphynx", image: "https://upload.wikimedia.org/wikipedia/commons/e/e8/Sphinx2_July_2006.jpg" },
+    { name: "Siamese", image: "https://upload.wikimedia.org/wikipedia/commons/2/25/Siam_lilacpoint.jpg", description: "Known for their distinctive color points and blue almond-shaped eyes." },
+    { name: "Persian", image: "https://upload.wikimedia.org/wikipedia/commons/1/15/White_Persian_Cat.jpg", description: "Characterized by their long, fluffy coat and flat face." },
+    { name: "Maine Coon", image: "https://upload.wikimedia.org/wikipedia/commons/5/5f/Maine_Coon_cat_by_Tomitheos.JPG", description: "One of the largest domesticated cat breeds, known for their intelligence and playful personality." },
+    { name: "British Shorthair", image: "https://upload.wikimedia.org/wikipedia/commons/9/9d/Britishblue.jpg", description: "Recognized for their round face and dense, plush coat." },
+    { name: "Sphynx", image: "https://upload.wikimedia.org/wikipedia/commons/e/e8/Sphinx2_July_2006.jpg", description: "Distinctive for their lack of fur, with a warm and soft skin often described as feeling like chamois leather." },
   ];
 
   const catFacts = [
@@ -42,8 +44,14 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200">
-      <div className="relative h-[70vh] bg-cover bg-center" style={{backgroundImage: "url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')"}}>
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 overflow-hidden">
+      <motion.div 
+        className="relative h-[70vh] bg-cover bg-center"
+        style={{backgroundImage: "url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')"}}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5 }}
+      >
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center">
           <motion.h1 
             initial={{ opacity: 0, y: -50 }}
@@ -63,7 +71,7 @@ const Index = () => {
             <span className="text-white text-2xl font-semibold">{likeCount} cat lovers</span>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       <div className="max-w-6xl mx-auto px-4 py-16">
         <motion.p 
@@ -98,7 +106,10 @@ const Index = () => {
           <CarouselContent>
             {catBreeds.map((breed, index) => (
               <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                <Card>
+                <Card 
+                  className="cursor-pointer transition-all duration-300 hover:shadow-xl"
+                  onClick={() => setSelectedBreed(breed)}
+                >
                   <CardContent className="flex aspect-square items-center justify-center p-6">
                     <div className="text-center">
                       <img src={breed.image} alt={breed.name} className="w-full h-48 object-cover rounded-lg mb-4" />
@@ -112,6 +123,28 @@ const Index = () => {
           <CarouselPrevious />
           <CarouselNext />
         </Carousel>
+
+        <AnimatePresence>
+          {selectedBreed && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+              onClick={() => setSelectedBreed(null)}
+            >
+              <motion.div
+                className="bg-white p-8 rounded-lg max-w-2xl w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img src={selectedBreed.image} alt={selectedBreed.name} className="w-full h-64 object-cover rounded-lg mb-4" />
+                <h3 className="text-3xl font-semibold mb-2">{selectedBreed.name}</h3>
+                <p className="text-xl mb-4">{selectedBreed.description}</p>
+                <Button onClick={() => setSelectedBreed(null)}>Close</Button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <h2 className="text-4xl font-semibold mb-8 text-center">Interesting Cat Facts</h2>
         <Accordion type="single" collapsible className="w-full max-w-3xl mx-auto mb-16">
@@ -136,9 +169,18 @@ const Index = () => {
           <p className="text-3xl text-gray-700 mb-8">
             Whether you're a cat owner or just an admirer, these furry friends continue to captivate us with their charm and mystery.
           </p>
-          <Button size="lg" className="text-xl px-8 py-6">
-            Learn More About Cats
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="lg" className="text-xl px-8 py-6">
+                  Learn More About Cats
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Discover the fascinating world of cats!</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </motion.div>
       </div>
     </div>
